@@ -25,6 +25,18 @@ def clear():
         np[i] = (0,0,0, 128)
         np.write()
 
+def yellow():
+    for i in range(n):
+        np[i] = (100,50,0, 128)
+        np.write()
+
+def green():
+    for i in range(n):
+        np[i] = (0,100,0, 128)
+        np.write()
+
+
+
 
 def demo(np = np):
     n = np.n
