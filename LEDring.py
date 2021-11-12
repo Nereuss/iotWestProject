@@ -35,6 +35,34 @@ def green():
         np[i] = (0,100,0, 128)
         np.write()
 
+def red():
+    for i in range(n):
+        np[i] = (100,0,0, 128)
+        np.write()
+        
+def white():
+    for i in range(n):
+        np[i] = (100,100,100, 128)
+        np.write()
+        
+def doubleWhiteBlink():
+    white()
+    sleep(0.3)
+    clear()
+    sleep(0.3)
+    white()
+    sleep(0.3)
+    clear()
+    
+def doubleRedBlink():
+    red()
+    sleep(0.3)
+    clear()
+    sleep(0.3)
+    red()
+    sleep(0.3)
+    clear()
+
 
 
 

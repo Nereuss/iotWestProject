@@ -157,8 +157,11 @@ twinkle = [
 ]
 
 startup = [
-    E7, 0, 0, E7, 0, 0, F7, 0,
-    
+    AS7, 0, 0, AS7, 0, 0, D8 ,  
+]
+
+error = [
+    F2, 0, F2,  
 ]
 
 
@@ -177,6 +180,9 @@ def play_jingle():
 
 def play_startup():
     play(p23, startup, 0.15, 50)
+
+def play_error():
+    play(p23, error, 0.15, 50)
     
 # play(p23, jingle, 0.15, 50)
 
