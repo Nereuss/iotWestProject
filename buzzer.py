@@ -157,12 +157,26 @@ twinkle = [
 ]
 
 startup = [
-    AS7, 0, 0, AS7, 0, 0, D8 ,  
+    AS7, 0, A1, 0, D8 ,  
 ]
 
 error = [
     F2, 0, F2,  
 ]
+
+errorInternet = [
+    B3, 0, B2, B2, F5, 0, B3 
+]
+
+closeDown = [
+    # C7,  0,  0, G6,  0,  0, E6,  0,
+    G6, E7,  0, G7, A7,  0, F7, G7,
+]
+
+tiltTest = [
+    E7, C7
+]
+
 
 
 # Function to easily play the mario theme
@@ -180,9 +194,18 @@ def play_jingle():
 
 def play_startup():
     play(p23, startup, 0.15, 50)
+    
+def play_closeDown():
+    play(p23, closeDown, 0.15, 50)
 
 def play_error():
-    play(p23, error, 0.15, 20)
+    play(p23, error, 0.15, 50)
+
+def play_error_noInternet():
+    play(p23, errorInternet, 0.15, 50)
+
+def play_tiltTest():
+    play(p23, tiltTest, 0.15, 100) 
     
 # play(p23, jingle, 0.15, 50)
 

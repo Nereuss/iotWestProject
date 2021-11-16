@@ -39,17 +39,42 @@ degreeFeed = bytes('{:s}/feeds/{:s}'.format(b'ingv0351', b'degreefeed/csv'), 'ut
 
 imu = MPU6050(SoftI2C(scl=Pin(22), sda=Pin(21)))
 tickRate = 0
-
 loop = True
+
+# Checks if the MQTT adafruit data have been sent so it can be used with none blocking delays
+# Once each packet have been sent it will become True, once everything have been sent it goes back to False
+gpsSent = False
+speedSent = False
+degreeSent = False
+
+#Controls the tiltTest, activates on green and resets on red
+tiltTest = False
+tiltTestYellowPass = False
+
 while loop == True:
     degree = imu.accel.z * 90 + 90
     
     if degree >= 40 and degree <= 70:
         LEDring.yellow()
+        if tiltTest == True:
+            if tiltTestYellowPass == False:
+                tiltTestYellowPass = True
+                
     if degree >= 20 and degree <= 39:
         LEDring.green()
+        if tiltTest == False:
+            buzzer.play_tiltTest()        
+            tiltTest = True
+            
     if degree >= 70 and degree <= 180:
         LEDring.red()
+        #If both are true
+        if tiltTestYellowPass and tiltTest:
+            tiltTestYellowPass = False
+            tiltTest = False
+            
+            
+        
     #if degree <= 20 or degree <= 180:
         # LEDring.red()
     # LEDring.green()
@@ -67,19 +92,41 @@ while loop == True:
             lib.c.resubscribe()
             pass
     try:
-        sleep(4)
+        #sleep(4)
 #         tickRate +=1
 #         if tickRate >= 1000:
         # print("test start")
-        lib.c.publish(topic=mapFeed, msg=GPSfunk.main())
-#         print("test slut")
-        print(GPSfunk.main())
-        speed = GPSfunk.main()
-        speed = speed[:+4]
-        print("speed: ",speed)
-        lib.c.publish(topic=speedFeed, msg=speed)  
-        lib.c.publish(topic=degreeFeed, msg=str(degree))
-        tickRate = 0
+        
+        #None blocking delay for GPS publish
+        tickRate +=1
+        #print(tickRate)
+        
+        if tickRate >= 1 and tickRate <= 150 and gpsSent == False:
+            # print("Number of satalites: " , GPSfunk.numberOfSatallites())
+            lib.c.publish(topic=mapFeed, msg=GPSfunk.main())
+            print("Gps sent with tickrate: ", tickRate)
+            gpsSent = True
+        if tickRate >= 151 and tickRate <= 300 and speedSent == False:    
+            #print("Speed: ", GPSfunk.main())
+            speed = GPSfunk.main()
+            speed = speed[:+4]
+            print("speed: ",speed)
+            lib.c.publish(topic=speedFeed, msg=speed)
+            print("speed sent with tickrate: ", tickRate)
+            speedSent = True
+        if tickRate >= 301 and tickRate <= 450 and degreeSent == False:
+            #print(degree)
+            lib.c.publish(topic=degreeFeed, msg=str(degree))
+            print("Degree sent with tickrate: ", tickRate)
+            degreeSent = True
+        #Checks if True, Resets the packages and tickRate so they are ready to be sent again in order
+        if gpsSent and speedSent and degreeSent:
+            print("Sent messages reseting")
+            gpsSent = False
+            speedSent = False
+            degreeSent = False
+            tickRate = 0
+            
         
         
     # Stopper programmet når der trykkes Ctrl + c
@@ -92,8 +139,8 @@ while loop == True:
         print('Failed to read sensor.')
     except NameError as e:
         print('NameError')
-    except TypeError as e:
-        print('TypeError')
+    #except TypeError as e:
+    #    print('TypeError: ', e)
     
         
     lib.c.check_msg() # needed when publish(qos=1), ping(), subscribe()
