@@ -18,10 +18,8 @@ except ImportError:
 #WIFI_SSID = credentials["ssid"]
 #WIFI_PASSWORD = credentials["password"]
 
-# WIFI_SSID = "esp32Lab"
-# WIFI_PASSWORD = "Lab3004#"
-WIFI_SSID = "LTE-1998"
-WIFI_PASSWORD = "12345678"
+WIFI_SSID = "-----"
+WIFI_PASSWORD = "-----"
 
 # turn off the WiFi Access Point
 ap_if = network.WLAN(network.AP_IF)
