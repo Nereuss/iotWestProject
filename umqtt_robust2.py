@@ -1,5 +1,4 @@
 import utime
-
 import sys
 import network
 import os
