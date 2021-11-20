@@ -14,9 +14,6 @@ try:
 except ImportError:
     print("Credentials are kept in credentials.py, please add them there!")
     raise
-# WiFi connection information
-#WIFI_SSID = credentials["ssid"]
-#WIFI_PASSWORD = credentials["password"]
 
 WIFI_SSID = "-----"
 WIFI_PASSWORD = "-----"
@@ -30,11 +27,6 @@ wifi = network.WLAN(network.STA_IF)
 wifi.active(True)
 
 print(WIFI_SSID + " " + WIFI_PASSWORD)
-
-
-
-
-
 
 def connect():
     try:
