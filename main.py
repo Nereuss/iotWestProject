@@ -23,28 +23,12 @@ speedFeed = bytes('{:s}/feeds/{:s}'.format(b'ingv0351', b'speedfeed/csv'), 'utf-
 degreeFeed = bytes('{:s}/feeds/{:s}'.format(b'ingv0351', b'degreefeed/csv'), 'utf-8')
 batteryFeed = bytes('{:s}/feeds/{:s}'.format(b'ingv0351', b'batteryfeed/csv'), 'utf-8')
 
-# i2c = SoftI2C(scl=Pin(22), sda=Pin(21))     #initializing the I2C method for ESP32
-#i2c = I2C(scl=Pin(5), sda=Pin(4))       #initializing the I2C method for ESP8266
-
-
-# wifiConnect.connect()
-# LEDring.bounce()
-# LEDring.demo()
-
-# mpu.get_values()
-
-# print(mpu.get_values()["AcX"])
-
-
-
-
 imu = MPU6050(SoftI2C(scl=Pin(22), sda=Pin(21)))
 tickRate = 0
 batteryTick = 0
 gpsFailTick = 0
 gpsFailBool = False
 loop = True
-
 
 # Checks if the MQTT adafruit data have been sent so it can be used with none blocking delays
 # Once each packet have been sent it will become True, once everything have been sent it goes back to False
@@ -61,8 +45,7 @@ while loop == True:
     if gpsFailBool == True:
         gpsFailTimer +=1
         batteryTick +=1
-        
-        
+         
     degree = imu.accel.z * 90 + 90
     
     if degree >= 40 and degree <= 70:
@@ -83,17 +66,8 @@ while loop == True:
         if tiltTestYellowPass and tiltTest:
             tiltTestYellowPass = False
             tiltTest = False
-            
-            
-        
-    #if degree <= 20 or degree <= 180:
-        # LEDring.red()
-    # LEDring.green()
-    # LEDring.fadeLight()
-#   gyro = mpu.get_values()
-    # print(mpu.get_values())
-
-        # sleep(500)
+          
+    #Checks and tries to reconnects to adafruit if a connection issue is present
     if lib.c.is_conn_issue():
         while lib.c.is_conn_issue():
             # hvis der forbindes returnere is_conn_issue metoden ingen fejlmeddelse
@@ -103,17 +77,10 @@ while loop == True:
             lib.c.resubscribe()
             pass
     try:
-        #sleep(4)
-#         tickRate +=1
-#         if tickRate >= 1000:
-        # print("test start")
         
         #None blocking delay for GPS publish
         tickRate +=1
-        #print(tickRate)
-        
 
-        
         if tickRate >= 1 and tickRate <= 200 and gpsSent == False:
             # print("Number of satalites: " , GPSfunk.numberOfSatallites())
             lib.c.publish(topic=mapFeed, msg=GPSfunk.main())
@@ -140,7 +107,6 @@ while loop == True:
             LEDring.batteryLight(batteryChecker.check())
             batterySent = True
             
-        
         #Checks if True, Resets the packages and tickRate so they are ready to be sent again in order
         if gpsSent and speedSent and degreeSent and batterySent:
             print("Sent messages reseting")
@@ -149,9 +115,7 @@ while loop == True:
             degreeSent = False
             batterySent = False
             tickRate = 0
-            
-        
-        
+                 
     # Stopper programmet når der trykkes Ctrl + c
     except KeyboardInterrupt:
         print('Ctrl-C pressed...exiting')
