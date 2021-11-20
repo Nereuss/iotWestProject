@@ -33,6 +33,11 @@ wifi.active(True)
 
 print(WIFI_SSID + " " + WIFI_PASSWORD)
 
+
+
+
+
+
 def connect():
     try:
         if not wifi.isconnected():

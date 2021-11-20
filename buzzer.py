@@ -11,7 +11,7 @@ import machine
 import time
 from math import ceil
 from machine import Pin
-from buzzer_music import music
+# from buzzer_music import music
 
 
 p23 = machine.Pin(23, machine.Pin.OUT)

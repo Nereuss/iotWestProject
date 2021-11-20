@@ -1,17 +1,18 @@
 from machine import Pin
 #We try to disable buzzer as fast as possible as it activates by itself on start
-buzzer = Pin(5, Pin.OUT)
+buzzer = Pin(23, Pin.OUT)
 buzzer.value(0)
 from machine import SoftI2C
 from time import sleep_ms, sleep
 from imu import MPU6050
 import sys
-import mpu6050
+#import mpu6050
 import LEDring
 import umqtt_robust2
 import GPSfunk
-import wifiConnect
+#import wifiConnect
 import buzzer
+import batteryChecker
 
 
 lib = umqtt_robust2
@@ -20,7 +21,7 @@ mapFeed = bytes('{:s}/feeds/{:s}'.format(b'ingv0351', b'mapfeed/csv'), 'utf-8')
 # opret en ny feed kaldet speed_gps indo på io.adafruit
 speedFeed = bytes('{:s}/feeds/{:s}'.format(b'ingv0351', b'speedfeed/csv'), 'utf-8')
 degreeFeed = bytes('{:s}/feeds/{:s}'.format(b'ingv0351', b'degreefeed/csv'), 'utf-8')
-
+batteryFeed = bytes('{:s}/feeds/{:s}'.format(b'ingv0351', b'batteryfeed/csv'), 'utf-8')
 
 # i2c = SoftI2C(scl=Pin(22), sda=Pin(21))     #initializing the I2C method for ESP32
 #i2c = I2C(scl=Pin(5), sda=Pin(4))       #initializing the I2C method for ESP8266
@@ -39,19 +40,29 @@ degreeFeed = bytes('{:s}/feeds/{:s}'.format(b'ingv0351', b'degreefeed/csv'), 'ut
 
 imu = MPU6050(SoftI2C(scl=Pin(22), sda=Pin(21)))
 tickRate = 0
+batteryTick = 0
+gpsFailTick = 0
+gpsFailBool = False
 loop = True
+
 
 # Checks if the MQTT adafruit data have been sent so it can be used with none blocking delays
 # Once each packet have been sent it will become True, once everything have been sent it goes back to False
 gpsSent = False
 speedSent = False
 degreeSent = False
+batterySent = False
 
 #Controls the tiltTest, activates on green and resets on red
 tiltTest = False
 tiltTestYellowPass = False
 
 while loop == True:
+    if gpsFailBool == True:
+        gpsFailTimer +=1
+        batteryTick +=1
+        
+        
     degree = imu.accel.z * 90 + 90
     
     if degree >= 40 and degree <= 70:
@@ -101,12 +112,14 @@ while loop == True:
         tickRate +=1
         #print(tickRate)
         
-        if tickRate >= 1 and tickRate <= 150 and gpsSent == False:
+
+        
+        if tickRate >= 1 and tickRate <= 200 and gpsSent == False:
             # print("Number of satalites: " , GPSfunk.numberOfSatallites())
             lib.c.publish(topic=mapFeed, msg=GPSfunk.main())
             print("Gps sent with tickrate: ", tickRate)
             gpsSent = True
-        if tickRate >= 151 and tickRate <= 300 and speedSent == False:    
+        if tickRate >= 201 and tickRate <= 400 and speedSent == False:    
             #print("Speed: ", GPSfunk.main())
             speed = GPSfunk.main()
             speed = speed[:+4]
@@ -114,17 +127,27 @@ while loop == True:
             lib.c.publish(topic=speedFeed, msg=speed)
             print("speed sent with tickrate: ", tickRate)
             speedSent = True
-        if tickRate >= 301 and tickRate <= 450 and degreeSent == False:
+        if tickRate >= 401 and tickRate <= 600 and degreeSent == False:
             #print(degree)
             lib.c.publish(topic=degreeFeed, msg=str(degree))
             print("Degree sent with tickrate: ", tickRate)
             degreeSent = True
+        if tickRate >= 601 and tickRate <= 800 and degreeSent == False:
+            print("Trying to send to adafruit with tick: ", tickRate)
+            lib.c.publish(topic=batteryFeed, msg=str(batteryChecker.check()))
+            print("Battery level sent")
+            #Send singal to LED to allot of if statements in LEDring.py
+            LEDring.batteryLight(batteryChecker.check())
+            batterySent = True
+            
+        
         #Checks if True, Resets the packages and tickRate so they are ready to be sent again in order
-        if gpsSent and speedSent and degreeSent:
+        if gpsSent and speedSent and degreeSent and batterySent:
             print("Sent messages reseting")
             gpsSent = False
             speedSent = False
             degreeSent = False
+            batterySent = False
             tickRate = 0
             
         
@@ -139,29 +162,13 @@ while loop == True:
         print('Failed to read sensor.')
     except NameError as e:
         print('NameError')
-    #except TypeError as e:
-    #    print('TypeError: ', e)
+    except TypeError as e:
+        print('TypeError: ', e)
     
         
     lib.c.check_msg() # needed when publish(qos=1), ping(), subscribe()
     lib.c.send_queue()  # needed when using the caching capabilities for unsent messages
     
-#     try:
-#         # LEDring.demo(LEDring.np)
-#         gyro = mpu.get_values()
-#         # print(mpu.get_values())
-#         velocityZ = mpu.get_values()["AcZ"]*0.0001*9.8
-#         velocityX = mpu.get_values()["AcX"]*0.0001*9.8
-#         velocityY = mpu.get_values()["AcY"]*0.0001*9.8
-#         print("Velocity Z: " + str(velocityZ) + " -  Velocity X: "+ str(velocityX) + " - Velocity Y: " + str(velocityY))
-#         # sleep(500)
-#         pass
-#              
-#     except KeyboardInterrupt:
-#         print("Exiting")
-#         loop = False
-#         sleep(5)
-#         sys.exit
         
 lib.c.disconnect()
 buzzer.play_error()

@@ -11,7 +11,7 @@ def main():
     while True:
         buf = uart.readline()
         print("gps start, trying to get gps data")
-        print(buf)
+        # print(buf)
         for char in buf:
             gps.update(chr(char)) # Note the conversion to to chr, UART outputs ints normally
 
@@ -31,6 +31,8 @@ def main():
         formattedSpd = gps.speed_string()
         formattedSpd = formattedSpd[:-5]
         
+        if formattedLat is None:
+            print("#######################################")
 
         
         gps_ada = formattedSpd+","+formattedLat+","+formattedLon+","+formattedAlt
