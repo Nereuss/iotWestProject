@@ -27,13 +27,11 @@ THE SOFTWARE.
 from utime import sleep_ms
 from math import sqrt, degrees, acos, atan2
 
-
 def default_wait():
     '''
     delay of 50 ms
     '''
     sleep_ms(50)
-
 
 class Vector3d(object):
     '''
