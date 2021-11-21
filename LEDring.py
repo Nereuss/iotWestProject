@@ -9,8 +9,6 @@ n = 12
 p = 15
 p2 = 17
 
-
-
 np = neopixel.NeoPixel(Pin(p), n)
 np2 = neopixel.NeoPixel(Pin(p2), n)
 
@@ -62,16 +60,7 @@ def doubleRedBlink(np = np):
     red()
     sleep(0.3)
     clear()
-
-def bounce(r=1,g=5,b=1,wait=1):
-    for i in range(1*n):
-        for j in range(n):
-            np[j] = (r,g,b, 1)
-        if (i // n) % 2 == 0:
-            np[i % n] = (0,0,0, 1)
-        np.write()
-        sleep(wait)
-        
+    
 def fadeLight(np = np):
     # fade in/out
     for i in range(0, 4 * 256, 2):
