@@ -41,13 +41,11 @@ from utime import sleep_ms
 from machine import I2C
 from vector3d import Vector3d
 
-
 class MPUException(OSError):
     '''
     Exception for MPU devices
     '''
     pass
-
 
 def bytes_toint(msb, lsb):
     '''
@@ -58,7 +56,6 @@ def bytes_toint(msb, lsb):
     if not msb & 0x80:
         return msb << 8 | lsb  # +ve
     return - (((msb ^ 255) << 8) | (lsb ^ 255) + 1)
-
 
 class MPU6050(object):
     '''
