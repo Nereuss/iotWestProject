@@ -41,19 +41,19 @@ while loop == True:
          
     degree = imu.accel.z * 90 + 90
     
-    if degree >= 40 and degree <= 70:
-        LEDring.yellow()
-        if tiltTest == True:
-            if tiltTestYellowPass == False:
-                tiltTestYellowPass = True
-         
     if degree >= 70 and degree <= 180:
         LEDring.red()
         #If both are true
         if tiltTestYellowPass and tiltTest:
             tiltTestYellowPass = False
-            tiltTest = False
-                
+            tiltTest = False    
+         
+    if degree >= 40 and degree <= 70:
+        LEDring.yellow()
+        if tiltTest == True:
+            if tiltTestYellowPass == False:
+                tiltTestYellowPass = True
+                    
     if degree >= 20 and degree <= 39:
         LEDring.green()
         if tiltTest == False:
