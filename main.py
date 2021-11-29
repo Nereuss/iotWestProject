@@ -6,11 +6,9 @@ from machine import SoftI2C
 from time import sleep_ms, sleep
 from imu import MPU6050
 import sys
-#import mpu6050
 import LEDring
 import umqtt_robust2
 import GPSfunk
-#import wifiConnect
 import buzzer
 import batteryChecker
 
@@ -25,9 +23,7 @@ batteryFeed = bytes('{:s}/feeds/{:s}'.format(b'ingv0351', b'batteryfeed/csv'), '
 
 imu = MPU6050(SoftI2C(scl=Pin(22), sda=Pin(21)))
 tickRate = 0
-batteryTick = 0
-gpsFailTick = 0
-gpsFailBool = False
+
 loop = True
 
 # Checks if the MQTT adafruit data have been sent so it can be used with none blocking delays
@@ -42,9 +38,6 @@ tiltTest = False
 tiltTestYellowPass = False
 
 while loop == True:
-    if gpsFailBool == True:
-        gpsFailTimer +=1
-        batteryTick +=1
          
     degree = imu.accel.z * 90 + 90
     
@@ -82,7 +75,6 @@ while loop == True:
         tickRate +=1
 
         if tickRate >= 1 and tickRate <= 200 and gpsSent == False:
-            # print("Number of satalites: " , GPSfunk.numberOfSatallites())
             lib.c.publish(topic=mapFeed, msg=GPSfunk.main())
             print("Gps sent with tickrate: ", tickRate)
             gpsSent = True
@@ -95,11 +87,10 @@ while loop == True:
             print("speed sent with tickrate: ", tickRate)
             speedSent = True
         if tickRate >= 401 and tickRate <= 600 and degreeSent == False:
-            #print(degree)
             lib.c.publish(topic=degreeFeed, msg=str(degree))
             print("Degree sent with tickrate: ", tickRate)
-            degreeSent = True
-        if tickRate >= 601 and tickRate <= 800 and degreeSent == False:
+            degreeSent = True   
+        if tickRate >= 601 and tickRate <= 800 and batterySent == False:
             print("Trying to send to adafruit with tick: ", tickRate)
             lib.c.publish(topic=batteryFeed, msg=str(batteryChecker.check()))
             print("Battery level sent")
