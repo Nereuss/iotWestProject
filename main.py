@@ -41,24 +41,25 @@ while loop == True:
          
     degree = imu.accel.z * 90 + 90
     
-    if degree >= 70 and degree <= 180:
-        LEDring.red()
-        #If both are true
-        if tiltTestYellowPass and tiltTest:
-            tiltTestYellowPass = False
-            tiltTest = False    
-         
+    if degree >= 20 and degree <= 39:
+        LEDring.green()
+        if tiltTest == False:
+            buzzer.play_tiltTest()        
+            tiltTest = True
+
     if degree >= 40 and degree <= 70:
         LEDring.yellow()
         if tiltTest == True:
             if tiltTestYellowPass == False:
                 tiltTestYellowPass = True
                     
-    if degree >= 20 and degree <= 39:
-        LEDring.green()
-        if tiltTest == False:
-            buzzer.play_tiltTest()        
-            tiltTest = True
+    if degree >= 70 and degree <= 180:
+        LEDring.red()
+        #If both are true
+        if tiltTestYellowPass and tiltTest:
+            tiltTestYellowPass = False
+            tiltTest = False    
+
              
           
     #Checks and tries to reconnects to adafruit if a connection issue is present
